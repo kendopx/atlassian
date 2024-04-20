@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+ name: mssql
+ labels:
+  app: mssql
+spec:
+ serviceName: "mssql"
+ replicas: 1
+ selector:
+  matchLabels:
+   app: mssql
+ template:
+  metadata:
+   labels:
+    app: mssql
+  spec:
+   securityContext:
+     fsGroup: 10001
+   containers:
+   - name: mssql
+     command:
+       - /bin/bash
+       - -c
+       - cp /var/opt/config/mssql.conf /var/opt/mssql/mssql.conf && /opt/mssql/bin/sqlservr
+     image: mcr.microsoft.com/mssql/server:2019-latest
+     resources:
+      requests:
+       memory: 2Gi
+       cpu: '2'

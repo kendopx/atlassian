@@ -1,0 +1,8 @@
+secretGenerator:
+- name: mysql-pass
+  literals:
+  - password=Redhat123
+resources:
+  - namespace.yaml
+  - mysql-deployment.yaml
+namespace: atlassian
