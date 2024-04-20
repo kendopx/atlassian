@@ -1,17 +1,11 @@
 
 ### The config for VPC is found here. It creates:
 
-1. A VPC
-2. Two subnets
-3. A Terraform security group with public ingress settings
-
 ```sh
 helm repo add atlassian-data-center https://atlassian.github.io/data-center-helm-charts
 helm repo update
 
 helm install jira atlassian-data-center/jira  -n atlassian -f jira-values.yaml 
-helm uninstall jira  -n atlassian 
-
 kubectl patch svc jira -n atlassian -p '{"spec": {"type": "LoadBalancer"}}' > /dev/null 2>&1 
 kubectl get pod -n atlassian 
 kubectl get svc -n atlassian 
@@ -34,3 +28,41 @@ aws rds describe-db-engine-versions \
   --engine mysql \
   --engine-version version-number \
   --query "DBEngineVersions[*].ValidUpgradeTarget[*].{EngineVersion:EngineVersion}" --output text
+
+  ### Uninstall
+  helm uninstall jira -n atlassian
+  helm uninstall confluence -n atlassian
+
+### login to pod 
+kubectl -n atlassian exec -it jira-0 -- /bin/bash
+
+### Copy from local to pod 
+kubectl cp mysql-connector-j-8.3.0.jar -n atlassian jira-0:/opt/atlassian/jira/lib
+
+  kubectl exec -i -t --container jira-0  -- /bin/bash -n atlassian
+kubectl exec -it cassandra -- sh
+kubectl exec --stdin --tty aks-helloworld-one-56c7b8d79d-xqx5t -- /bin/bash
+kubectl exec -i -t jira-0 --container <container name> -- /bin/bash
+
+### Restart Kubernetes Pods With Kubectl
+
+## Restart a pod
+
+## Method 1
+kubectl rollout restart
+kubectl rollout restart deployment <deployment_name> -n <namespace>
+
+### Method 2
+kubectl scale
+kubectl scale deployment <deployment name> -n <namespace> --replicas=0
+
+### Method 3
+kubectl delete pod and kubectl delete replicaset
+
+### Each pod can be deleted individually if required:
+kubectl delete pod <pod_name> -n <namespace>
+
+
+kubectl get pod jira-0 -n atlassian -o yaml | kubectl replace --force -f -
+
+

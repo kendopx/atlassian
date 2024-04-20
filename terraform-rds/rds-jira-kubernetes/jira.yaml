@@ -1,0 +1,102 @@
+# The Jira documentation states to set replicaCount to a higher number after the
+# initial configuration from your browser
+replicaCount: 1
+image:
+  repository: atlassian/jira-software
+  pullPolicy: IfNotPresent
+serviceAccount:
+  create: true
+database:
+  type: mysql8
+  # url: jdbc:mysql://${RDS_DB_INSTANCE_HOST}:${RDS_DB_INSTANCE_PORT}/jira
+  url: jdbc:mysql://jiradb.cbw6eaaairi8.us-east-2.rds.amazonaws.com:3306/jiradb 
+  driver: org.mysql.Driver
+  credentials:
+    secretName: jira-mysql-creds
+    usernameSecretKey: username
+    passwordSecretKey: password
+volumes:
+  localHome:
+    persistentVolumeClaim:
+      create: true
+      storageClassName: gp2
+      resources:
+        requests:
+          storage: 1Gi
+    customVolume: {}
+    mountPath: "/var/atlassian/application-data/jira"
+  sharedHome:
+    persistentVolumeClaim:
+      create: true
+      storageClassName: longhorn
+      resources:
+        requests:
+          storage: 1Gi
+    customVolume: {}
+    mountPath: "/var/atlassian/application-data/shared-home"
+    nfsPermissionFixer:
+      enabled: true
+      mountPath: "/shared-home"
+      command:
+  additional: []
+ingress:
+  create: true
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+jira:
+  service:
+    port: 80
+    type: LoadBalancer
+    contextPath:
+    annotations: {}
+  securityContext:
+    fsGroup: 2001
+  containerSecurityContext: {}
+  setPermissions: true
+  ports:
+    http: 8080
+    ehcache: 40001
+    ehcacheobject: 40011
+  readinessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    failureThreshold: 30
+  accessLog:
+    mountPath: "/opt/atlassian/jira/logs"
+    localHomeSubPath: "log"
+  clustering:
+    enabled: true
+  license:
+    secretName:
+    secretKey: license-key
+  shutdown:
+    terminationGracePeriodSeconds: 30
+    command: "/shutdown-wait.sh"
+  resources:
+    jvm:
+      maxHeap: "768m"
+      minHeap: "384m"
+      reservedCodeCache: "512m"
+    container:
+      requests:
+        cpu: "2" # If changing the cpu value update 'ActiveProcessorCount' below
+        memory: "2G"
+  additionalJvmArgs:
+    - -XX:ActiveProcessorCount=2
+  additionalLibraries: []
+  additionalBundledPlugins: []
+  additionalVolumeMounts: []
+  additionalEnvironmentVariables: []
+fluentd:
+  enabled: false
+podAnnotations: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+schedulerName:
+additionalContainers: []
+additionalInitContainers: []
+additionalLabels: {}
+additionalFiles: []
