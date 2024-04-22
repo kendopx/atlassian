@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/spec.ingressClassName: nginx
+    nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+  name: homesite-ingress
+  namespace: homesite
+spec:
+  rules:
+  - host: homesite.kendopz.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: homesite
+            port:
+              name: https
+        path: /
+        pathType: ImplementationSpecific
+  tls:
+  - hosts:
+    - homesite.kendopz.com
+    secretName: homesite-tls-certificate

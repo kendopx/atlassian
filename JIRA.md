@@ -2,13 +2,14 @@
 ### The config for VPC is found here. It creates:
 
 ```sh
+kubectl create ns atlassian
 helm repo add atlassian-data-center https://atlassian.github.io/data-center-helm-charts
 helm repo update
 
-helm install jira atlassian-data-center/jira  -n atlassian -f jira-values.yaml 
+helm install jira atlassian-data-center/jira  -n atlassian -f 1_jira-values.yaml 
 kubectl patch svc jira -n atlassian -p '{"spec": {"type": "LoadBalancer"}}' > /dev/null 2>&1 
-kubectl get pod -n atlassian 
-kubectl get svc -n atlassian 
+kubectl get pod -n atlassian
+kubectl get svc -n atlassian
 
 helm get values jira -n atlassian
 export POD_NAME=$(kubectl get pods --namespace atlassian -l "app.kubernetes.io/instance=jira" -o jsonpath="{.items[0].metadata.name}")
