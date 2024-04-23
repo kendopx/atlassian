@@ -189,11 +189,12 @@ volumes:
       # -- If 'true', then a 'PersistentVolume' and 'PersistentVolumeClaim' will be dynamically
       # created for each pod based on the 'StorageClassName' supplied below.
       #
-      create: false
+      create: true
+
       # -- Specify the name of the 'StorageClass' that should be used for the local-home
       # volume claim.
       #
-      storageClassName: 
+      storageClassName:
 
       # -- Specifies the standard K8s resource requests and/or limits for the local-home
       # volume claims.
@@ -256,19 +257,19 @@ volumes:
       # -- If 'true', then a 'PersistentVolumeClaim' and 'PersistentVolume' will be dynamically
       # created for shared-home based on the 'StorageClassName' supplied below.
       #
-      create: false 
+      create: false
 
       # -- Specify the name of the 'StorageClass' that should be used for the 'shared-home'
       #volume claim.
       #
-      storageClassName: 
+      storageClassName:
 
       # -- Specifies the standard K8s resource requests and/or limits for the shared-home
       # volume claims.
       #
       resources:
         requests:
-          storage: 10Gi
+          storage: 1Gi
 
     # -- Static provisioning of shared-home using K8s PVs and PVCs
     #
@@ -436,7 +437,7 @@ ingress:
   # https://kubernetes.io/docs/concepts/configuration/secret/#tls-secrets
   # https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
   #
-  tlsSecretName: jira-tls 
+  tlsSecretName: jira-tils 
 
 # Jira configuration
 #

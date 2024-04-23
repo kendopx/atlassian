@@ -1,26 +1,27 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  annotations:
-    kubernetes.io/spec.ingressClassName: nginx
-    nginx.ingress.kubernetes.io/backend-protocol: HTTPS
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
-  name: homesite-ingress
-  namespace: homesite
+  # annotations:
+  #   kubernetes.io/spec.ingressClassName: nginx
+  #   nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+  #   nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  #   nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+  name: jira-ingress
+  namespace: jira
 spec:
+  ingressClassName: nginx
   rules:
-  - host: homesite.kendopz.com
+  - host: jira.kendopx.com
     http:
       paths:
       - backend:
           service:
-            name: homesite
+            name: jira
             port:
               name: https
         path: /
         pathType: ImplementationSpecific
   tls:
   - hosts:
-    - homesite.kendopz.com
-    secretName: homesite-tls-certificate
+    - jira.kendopx.com
+    secretName: jira-tls-certificate

@@ -1,15 +1,41 @@
 
 ### The config for VPC is found here. It creates:
 
+eksctl create cluster --name dev-cluster  --node-type t3a.xlarge
+kubectl get nodes
+aws eks list-clusters
+
+eks update-kubeconfig --name demo-cluster 
+eksctl delete cluster  --name demo-cluster
+
 ```sh
-kubectl create ns atlassian
 helm repo add atlassian-data-center https://atlassian.github.io/data-center-helm-charts
 helm repo update
 
-helm install jira atlassian-data-center/jira  -n atlassian -f 1_jira-values.yaml 
-kubectl patch svc jira -n atlassian -p '{"spec": {"type": "LoadBalancer"}}' > /dev/null 2>&1 
-kubectl get pod -n atlassian
-kubectl get svc -n atlassian
+helm upgrade -i jira atlassian-data-center/jira --namespace jira --create-namespace --values values.yaml
+
+kubectl create ns jira
+helm install jira atlassian-data-center/jira  -n jira -f 1_jira-values.yaml 
+kubectl describe po jira-0 -n jira
+kubectl get po -n jira
+kubectl get svc -n jira
+kubectl get ing -n jira
+
+helm uninstall jira -n jira
+kubectl delete ns jira 
+
+ export POD_NAME=$(kubectl get pods --namespace jira -l "app.kubernetes.io/instance=jira" -o jsonpath="{.items[0].metadata.name}")
+ echo POD_NAME: $POD_NAME && echo POD_STATUS: $(kubectl get pod $POD_NAME -o jsonpath='{.status.phase}')
+ kubectl --namespace jira port-forward $POD_NAME 8080
+ http://localhost:8080
+
+helm fetch atlassian-data-center/jira --untar 
+
+helm install jira atlassian-data-center/jira  -n jira -f 1_jira-values.yaml 
+kubectl patch svc jira -n jira -p '{"spec": {"type": "LoadBalancer"}}' > /dev/null 2>&1 
+kubectl get pod -n jira
+kubectl get svc -n jira
+kubectl get ing -n jira
 
 helm get values jira -n atlassian
 export POD_NAME=$(kubectl get pods --namespace atlassian -l "app.kubernetes.io/instance=jira" -o jsonpath="{.items[0].metadata.name}")
@@ -67,3 +93,10 @@ kubectl delete pod <pod_name> -n <namespace>
 kubectl get pod jira-0 -n atlassian -o yaml | kubectl replace --force -f -
 
 
+Review the prerequisites for Cluster Autoscaler
+Create an EKS cluster in AWS
+Create IAM OIDC provider
+Create IAM policy for Cluster Autoscaler
+Create IAM role for Cluster Autoscaler
+Deploy Kubernetes Cluster Autoscaler
+Create an Nginx deployment to test the CA functionality
